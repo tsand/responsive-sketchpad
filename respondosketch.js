@@ -1,9 +1,11 @@
-$.fn.respondosketch = function(e) {
+$.fn.respondosketch = function(props) {
 
     var canvas = this;
     var ctx = $(this)[0].getContext('2d');
 
-    var mouse = {x: 0, y: 0};
+    var backgroundColor = props.backgroundColor;
+    var aspectRatio = props.aspectRatio;
+
     var sketch = false;
     var drawing = new Array();
 
@@ -17,8 +19,8 @@ $.fn.respondosketch = function(e) {
     ctx.strokeStyle = 'black';
 
     $(window).resize(function(e) {
-        var newWidth = $(window).width();
-        var newHeight = $(window).height();
+        var newWidth = canvas.parent().width();
+        var newHeight = newWidth / aspectRatio;
 
         var xScale = newWidth/width;
         var yScale = newHeight/height;
@@ -33,19 +35,28 @@ $.fn.respondosketch = function(e) {
         redraw();
     });
 
-    canvas.on('mousedown', function(e) {
+    var startEvent = 'mousedown touchstart';
+    canvas.on(startEvent, function(e) {
+        if (e.type == 'touchstart') {
+            e.preventDefault();
+        }
+
         sketch = true;
+
+        var mouse = getMouseLocation(this, e);
 
         drawing.push({
             x: mouse.x,
             y: mouse.y,
             type: e.type
         });
+
+        redraw();
     });
 
-    canvas.on('mousemove', function(e) {
-        mouse.x = e.pageX - this.offsetLeft;
-        mouse.y = e.pageY - this.offsetTop;
+    var moveEvent = 'mousemove touchmove';
+    canvas.on(moveEvent, function(e) {
+        var mouse = getMouseLocation(this, e);
 
         if (sketch) {
             drawing.push({
@@ -57,15 +68,32 @@ $.fn.respondosketch = function(e) {
         }
     });
 
-    canvas.on('mouseup mouseleave', function(e) {
+    var endEvent = 'mouseup mouseleave touchend';
+    canvas.on(endEvent, function(e) {
         sketch = false;
     });
 
     function init() {
-        var width = $(window).width();
-        var height = $(window).height();
+        var width = canvas.parent().width();
+        var height = width / aspectRatio;
+
+        canvas.css('background-color', backgroundColor);
 
         setSize(width, height);
+    }
+
+    function getMouseLocation(element, event) {
+        if (event.type.indexOf('touch') !== -1) {
+            return {
+                x: event.originalEvent.touches[0].pageX - element.offsetLeft,
+                y: event.originalEvent.touches[0].pageY - element.offsetTop
+            }
+        } else {
+            return {
+                x: event.pageX - element.offsetLeft,
+                y: event.pageY - element.offsetTop
+            };
+        }
     }
 
     function setSize(w, h) {
@@ -83,7 +111,7 @@ $.fn.respondosketch = function(e) {
         ctx.beginPath();
         for (var i = 1; i < drawing.length; i++) {
 
-            if (drawing[i].type == 'mousemove') {
+            if (drawing[i].type == 'mousemove' || drawing[i].type == 'touchmove') {
                 ctx.moveTo(drawing[i - 1].x, drawing[i - 1].y);
             } else {
                 ctx.moveTo(drawing[i].x, drawing[i].y);
