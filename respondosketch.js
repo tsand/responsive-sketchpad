@@ -12,11 +12,8 @@ $.fn.respondosketch = function(props) {
     var width = canvas.width();
     var height = canvas.height();
 
-    /* Drawing on Paint App */
-    ctx.lineWidth = 5;
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = 'black';
+    var lineColor = 'black';
+    var lineSize = 5;
 
     $(window).resize(function(e) {
         var newWidth = canvas.parent().width();
@@ -48,7 +45,9 @@ $.fn.respondosketch = function(props) {
         drawing.push({
             x: mouse.x,
             y: mouse.y,
-            type: e.type
+            type: e.type,
+            color: lineColor,
+            size: lineSize
         });
 
         redraw();
@@ -62,7 +61,9 @@ $.fn.respondosketch = function(props) {
             drawing.push({
                 x: mouse.x,
                 y: mouse.y,
-                type: e.type
+                type: e.type,
+                color: lineColor,
+                size: lineSize
             });
             redraw();
         }
@@ -76,6 +77,9 @@ $.fn.respondosketch = function(props) {
     function init() {
         var width = canvas.parent().width();
         var height = width / aspectRatio;
+
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
 
         canvas.css('background-color', backgroundColor);
 
@@ -119,6 +123,8 @@ $.fn.respondosketch = function(props) {
 
 
             ctx.lineTo(drawing[i].x, drawing[i].y);
+            ctx.strokeStyle = drawing[i].color;
+            ctx.lineWidth = lineSize
             ctx.stroke()
         }
         ctx.closePath();
@@ -128,5 +134,15 @@ $.fn.respondosketch = function(props) {
         return JSON.stringify(drawing);
     }
 
+    this.changeLineColor = function(color) {
+        lineColor = color;
+    };
+
+    this.changeLineSize = function(size) {
+        lineSize = size;
+    };
+
     init();
+
+    return this;
 };
