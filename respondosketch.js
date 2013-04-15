@@ -1,21 +1,17 @@
-$.fn.respondosketch = function(props) {
+$.fn.respondosketch = function(options) {
 
     var canvas = this;
     var ctx = $(this)[0].getContext('2d');
 
-    var aspectRatio = props.aspectRatio;
+    var strokes = [];
+    var aspectRatio = 1;
+
     var sketch = false;
-    var drawing = new Array();
-    var width = canvas.width();
-    var height = canvas.height();
+
     var lineColor = 'black';
     var lineSize = 5;
 
-    // Setup Context
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
 
-    //
     $(window).resize(function(e) {
         var newWidth = canvas.parent().width();
         var newHeight = newWidth / aspectRatio;
@@ -34,15 +30,18 @@ $.fn.respondosketch = function(props) {
         }
 
         sketch = true;
+        strokes.push({
+            stroke: [],
+            color: lineColor,
+            size: lineSize
+        });
 
         var canvas = getCanvasLocation(this, e);
 
-        drawing.push({
+        strokes[strokes.length - 1].stroke.push({
             x: canvas.x,
             y: canvas.y,
-            type: e.type,
-            color: lineColor,
-            size: lineSize
+            type: e.type
         });
 
         redraw();
@@ -53,7 +52,7 @@ $.fn.respondosketch = function(props) {
         var canvas = getCanvasLocation(this, e);
 
         if (sketch) {
-            drawing.push({
+            strokes[strokes.length - 1].stroke.push({
                 x: canvas.x,
                 y: canvas.y,
                 type: e.type,
@@ -69,33 +68,6 @@ $.fn.respondosketch = function(props) {
     canvas.on(endEvent, function(e) {
         sketch = false;
     });
-
-    function init() {
-
-        var color = props.backgroundColor;
-        var locked = props.locked;
-
-        if (props.json) {
-            drawing = props.json.lines;
-            aspectRatio = props.json.aspectRatio;
-        }
-
-        if (props.locked) {
-            canvas.unbind(startEvent + moveEvent + endEvent);
-        } else {
-            canvas.css('cursor', 'crosshair');
-        }
-
-        var width = canvas.parent().width();
-        var height = width / aspectRatio;
-
-        canvas.css('background-color', color);
-
-        setSize(width, height);
-
-        redraw();
-
-    }
 
     function getCanvasLocation(element, event) {
         if (event.type.indexOf('touch') !== -1) {
@@ -123,42 +95,75 @@ $.fn.respondosketch = function(props) {
     }
 
     function redraw() {
-        ctx.beginPath();
-        for (var i = 1; i < drawing.length; i++) {
+        canvas[0].width = canvas[0].width; // Clears canvas
 
-            if (drawing[i].type == 'mousemove' || drawing[i].type == 'touchmove') {
-                ctx.moveTo(drawing[i - 1].x * width, drawing[i - 1].y * height);
-            } else {
-                ctx.moveTo(drawing[i].x * width, drawing[i].y * height);
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+
+        for (var i = 0; i < strokes.length; i++) {
+            var stroke = strokes[i].stroke;
+
+            ctx.beginPath();
+            for (var j = 1; j < stroke.length; j++) {
+                ctx.moveTo(stroke[j - 1].x * width, stroke[j - 1].y * height);
+                ctx.lineTo(stroke[j].x * width, stroke[j].y * height);
             }
+            ctx.closePath();
 
-            ctx.lineTo(drawing[i].x * width, drawing[i].y * height);
-            ctx.strokeStyle = drawing[i].color;
-            ctx.lineWidth = lineSize
+            ctx.strokeStyle = strokes[i].color;
+            ctx.lineWidth = strokes[i].size;
             ctx.stroke()
         }
-        ctx.closePath();
     }
 
     this.json = function() {
         return JSON.stringify({
-            aspectRatio: aspectRatio,
-            lines: drawing
+            aspectRatio: aspectRatio, // Is this needed?
+            strokes: strokes
         });
     };
 
     this.img = function() {
-        var img = canvas[0].toDataURL("image/png");
-        return img;
+        return canvas[0].toDataURL("image/png");
     };
 
-    this.changeLineColor = function(color) {
+    this.lineColor = function(color) {
         lineColor = color;
     };
 
-    this.changeLineSize = function(size) {
-        lineSize = size;
+    this.undo = function() {
+        strokes.pop();
+        redraw();
     };
+
+
+    function init() {
+
+        if (options.data) {
+            aspectRatio = typeof options.data.aspectRatio !== 'undefined' ? options.data.aspectRatio : aspectRatio;
+            strokes = typeof options.data.strokes !== 'undefined' ? options.data.strokes : [];
+        } else {
+            aspectRatio = typeof options.aspectRatio !== 'undefined' ? options.aspectRatio : aspectRatio;
+        }
+
+        var canvasColor = typeof options.canvasColor !== 'undefined' ? options.canvasColor : '#fff';
+        var locked = typeof options.locked !== 'undefined' ? options.locked : false;
+        var live = typeof options.live !== 'undefined' ? options.live : true;
+
+        if (options.locked) {
+            canvas.unbind(startEvent + moveEvent + endEvent);
+        } else {
+            canvas.css('cursor', 'crosshair');
+        }
+
+        canvas.css('background-color', canvasColor);
+
+        // Set canvas size
+        var width = canvas.parent().width();
+        setSize(width, width / aspectRatio);
+
+        redraw();
+    }
 
     init();
 
