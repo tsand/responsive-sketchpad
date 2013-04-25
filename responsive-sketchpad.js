@@ -169,6 +169,13 @@ $.fn.sketchpad = function(options) {
         });
     };
 
+    this.jsonLoad = function(json) {
+        var array = JSON.parse(json);
+        aspectRatio = array.aspectRatio;
+        strokes = array.strokes;
+        redraw()
+    };
+
     this.getImage = function() {
         return canvas[0].toDataURL("image/png");
     };
