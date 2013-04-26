@@ -177,7 +177,7 @@ $.fn.sketchpad = function(options) {
     };
 
     this.getImage = function() {
-        return canvas[0].toDataURL("image/png");
+        return '<img src="' + canvas[0].toDataURL("image/png") + '"/>';
     };
 
     this.getLineColor = function() {
