@@ -2,6 +2,7 @@
     $.fn.sketchpad = function (options) {
         // Canvas info
         var canvas = this;
+        canvas.readOnly = false;
         var ctx = $(this)[0].getContext('2d');
 
         // Default aspect ratio
@@ -61,6 +62,10 @@
         // On mouse down, create new stroke, push start location
         var startEvent = 'mousedown touchstart ';
         canvas.on(startEvent, function (e) {
+            if (canvas.readOnly) {
+                return false;
+            }
+
             if (e.type == 'touchstart') {
                 e.preventDefault();
             } else {
@@ -92,6 +97,10 @@
         // On mouse move, record movements
         var moveEvent = 'mousemove touchmove ';
         canvas.on(moveEvent, function (e) {
+            if (canvas.readOnly) {
+                return false;
+            }
+
             var cursor = getCursor(this, e);
 
             if (sketching) {
@@ -214,6 +223,16 @@
         this.clear = function () {
             strokes = [];
             redraw();
+        };
+
+        this.setReadOnly = function(state) {
+            this.readOnly = state;
+            if (state) {
+                canvas.css('cursor', 'default');
+            }
+            else {
+                canvas.css('cursor', 'crosshair');
+            }
         };
 
         return this;
