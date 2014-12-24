@@ -79,11 +79,11 @@
                 miterLimit: lineMiterLimit
             });
 
-            var canvas = getCursor(this, e);
+            var cursor = getCursor(this, e);
 
             strokes[strokes.length - 1].stroke.push({
-                x: canvas.x,
-                y: canvas.y
+                x: cursor.x,
+                y: cursor.y
             });
 
             redraw();
@@ -92,12 +92,12 @@
         // On mouse move, record movements
         var moveEvent = 'mousemove touchmove ';
         canvas.on(moveEvent, function (e) {
-            var canvas = getCursor(this, e);
+            var cursor = getCursor(this, e);
 
             if (sketching) {
                 strokes[strokes.length - 1].stroke.push({
-                    x: canvas.x,
-                    y: canvas.y
+                    x: cursor.x,
+                    y: cursor.y
                 });
                 redraw();
             }
