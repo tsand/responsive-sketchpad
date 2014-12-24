@@ -51,7 +51,6 @@
         // Set the canvas size
         function setSize(w, h) {
             lineSize *= (w / canvas.width());
-            console.log(lineSize);
             canvas.width(w);
             canvas.height(h);
 
