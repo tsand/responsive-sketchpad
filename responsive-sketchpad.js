@@ -57,13 +57,13 @@ function Sketchpad(el, opts) {
 
             context.beginPath();
             for (var j = 0; j < stroke.length - 1; j++) {
-                context.moveTo(stroke[j].x, stroke[j].y);
-                context.lineTo(stroke[j + 1].x, stroke[j + 1].y);
+                context.moveTo(stroke[j].x * width, stroke[j].y * height);
+                context.lineTo(stroke[j + 1].x * width, stroke[j + 1].y * height);
             }
             context.closePath();
 
             context.strokeStyle = strokes[i].lineColor;
-            context.lineWidth = strokes[i].lineSize;
+            context.lineWidth = strokes[i].lineSize * width;
             context.lineJoin = strokes[i].lineJoin;
             context.lineCap = strokes[i].lineCap;
             context.miterLimit = strokes[i].lineMiterLimit;
@@ -76,6 +76,9 @@ function Sketchpad(el, opts) {
     function startLine (e) {
         e.preventDefault();
 
+        var width = that.canvas.width;
+        var height = that.canvas.height;
+
         strokes = that.strokes;
         sketching = true;
         that.undos = [];
@@ -83,7 +86,7 @@ function Sketchpad(el, opts) {
         strokes.push({
             stroke: [],
             lineColor: opts.lineColor,
-            lineSize: opts.lineSize,
+            lineSize: opts.lineSize / width,
             lineCap: opts.lineCap,
             lineJoin: opts.lineJoin,
             lineMiterLimit: opts.lineMiterLimit
@@ -91,8 +94,8 @@ function Sketchpad(el, opts) {
 
         var cursor = getCursor(e);
         strokes[strokes.length - 1].stroke.push({
-            x: cursor.x,
-            y: cursor.y
+            x: cursor.x / width,
+            y: cursor.y / height
         });
     }
 
@@ -101,17 +104,34 @@ function Sketchpad(el, opts) {
             return
         }
 
+        var width = that.canvas.width;
+        var height = that.canvas.height;
+
         var cursor = getCursor(e);
         that.strokes[strokes.length - 1].stroke.push({
-            x: cursor.x,
-            y: cursor.y
+            x: cursor.x / width,
+            y: cursor.y / height
         });
 
         that.redraw();
     }
 
     function endLine (e) {
+        if (!sketching) {
+            return
+        }
+
+        var width = that.canvas.width;
+        var height = that.canvas.height;
+
         sketching = false;
+        var cursor = getCursor(e);
+        that.strokes[strokes.length - 1].stroke.push({
+            x: cursor.x / width,
+            y: cursor.y / height
+        });
+
+        that.redraw();
     }
 
     // Event Listeners
@@ -124,6 +144,7 @@ function Sketchpad(el, opts) {
     this.canvas = canvas;
     this.strokes = strokes;
     this.undos = undos;
+    this.opts = opts;
 
     // Public functions
     this.redraw = redraw;
@@ -177,12 +198,27 @@ Sketchpad.prototype.getImage = function () {
 
 
 Sketchpad.prototype.setLineSize = function (size) {
-    this.lineSize = size;
+    this.opts.lineSize = size;
 }
 
 
 Sketchpad.prototype.setLineColor = function (color) {
-    this.lineColor = color;
+    this.opts.lineColor = color;
+}
+
+
+Sketchpad.prototype.resize = function (width) {
+    var height = width * this.opts.aspectRatio;
+    this.opts.lineSize = this.opts.lineSize * (width / this.opts.width);
+    this.opts.width = width;
+    this.opts.height = height;
+
+    this.canvas.setAttribute('width', width);
+    this.canvas.setAttribute('height', height);
+    this.canvas.style.width = width + 'px';
+    this.canvas.style.height = height + 'px';
+
+    this.redraw();
 }
 
 
