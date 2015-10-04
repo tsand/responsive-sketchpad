@@ -1,6 +1,9 @@
 language: node_js
 node_js:
 - stable
+branches:
+  except:
+    - gh-pages
 deploy:
   provider: npm
   email: theisen.sanders@gmail.com

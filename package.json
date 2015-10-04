@@ -1,6 +1,6 @@
 {
   "name": "responsive-sketchpad",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A completely responsive sketchpad based on HTML5 canvas",
   "main": "responsive-sketchpad.js",
   "scripts": {
