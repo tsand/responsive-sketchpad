@@ -77,13 +77,6 @@
             margin-bottom: -20px;
         }
 
-        .toolbox .hr {
-            border: 0;
-            height: 0;
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
         .toolbox .tool {
             margin: 30px 0;
         }
@@ -128,11 +121,12 @@
 
 var el = document.getElementById('sketchpad');
 var pad = new Sketchpad(el, {
-    aspectRatio: 2 / 1
+    line: {
+        color: '#f44335',
+        size: 5
+    }
 });</code></pre>
                 </div>
-
-                <div class="hr"></div>
 
                 <div class="tool">
                     <button class="mdl-button mdl-js-button mdl-button--raised" onclick="setLineColor()">
@@ -141,16 +135,12 @@ var pad = new Sketchpad(el, {
                     <pre class="mdl-shadow--2dp"><code class="language-javascript">pad.setLineColor('#000000');</code></pre>
                 </div>
 
-                <div class="hr"></div>
-
                 <div class="tool">
                     <button class="mdl-button mdl-js-button mdl-button--raised" onclick="setLineSize()">
                         <i class="material-icons">&#xE39E;</i> Line Size
                     </button>
                     <pre class="mdl-shadow--2dp"><code class="language-javascript">pad.setLineSize(20);</code></pre>
                 </div>
-
-                <div class="hr"></div>
 
                 <div class="tool">
                     <button class="mdl-button mdl-js-button mdl-button--raised" onclick="undo()">
@@ -163,13 +153,18 @@ var pad = new Sketchpad(el, {
 pad.redo();</code></pre>
                 </div>
 
-                <div class="hr"></div>
-
                 <div class="tool">
                     <button class="mdl-button mdl-js-button mdl-button--raised" onclick="doClear()">
                         <i class="material-icons">&#xE14C;</i> Clear
                     </button>
                     <pre class="mdl-shadow--2dp"><code class="language-javascript">pad.clear();</code></pre>
+                </div>
+
+                <div class="tool">
+                    <button class="mdl-button mdl-js-button mdl-button--raised" id="drawLineBtn">
+                        <i class="material-icons">&#xE14C;</i> Draw Line
+                    </button>
+                    <pre class="mdl-shadow--2dp"><code class="language-javascript">pad.drawLine({x: 10, y: 15}, {x: 33, y: 45}, {color: 'red'});</code></pre>
                 </div>
             </div>
         </div>
@@ -184,6 +179,10 @@ pad.redo();</code></pre>
     var el = document.getElementById('sketchpad');
     var pad = new Sketchpad(el);
     var originalWidth = pad.opts.width;
+
+    function getRandomNumber(low, high) {
+        return Math.floor(Math.random() * (high - low)) + low;
+    }
 
     function setLineColor() {
         var colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5',
@@ -218,6 +217,19 @@ pad.redo();</code></pre>
         pad.resize(newWidth);
     }
     document.getElementById('slider').addEventListener('change', resize);
+
+    function drawLine() {
+        var start = {
+            x: getRandomNumber(0, pad.opts.width),
+            y: getRandomNumber(0, pad.opts.height)
+        };
+        var end = {
+            x: getRandomNumber(0, pad.opts.width),
+            y: getRandomNumber(0, pad.opts.height)
+        };
+        pad.drawLine(start, end);
+    }
+    document.getElementById('drawLineBtn').addEventListener('click', drawLine);
 
 </script>
 
