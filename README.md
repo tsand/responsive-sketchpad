@@ -1,12 +1,36 @@
-## Responsive-Sketchpad
+# Responsive-Sketchpad [![Build Status](https://travis-ci.org/trsanders/responsive-sketchpad.svg?branch=master)](https://travis-ci.org/trsanders/responsive-sketchpad)
 
-**Demo:** [http://trsanders.github.io/responsive-sketchpad/](http://trsanders.github.io/responsive-sketchpad/)
+A completely responsive, HTML5 canvas sketchpad for use on desktop and mobile browsers
 
-**Docs:** [http://trsanders.github.io/responsive-sketchpad/#docs](http://trsanders.github.io/responsive-sketchpad/#docs)
 
-**Contributing:** Fork and pull request to master with any changes
+## Getting Started
 
-**Issues:** [https://github.com/trsanders/responsive-sketchpad/issues](https://github.com/trsanders/responsive-sketchpad/issues)
+### Installation
 
-**Author:** [Theisen Sanders](https://github.com/trsanders)
+`npm install responsive-sketchpad`
 
+### Example
+
+Create a sketchpad
+
+html:
+```html
+<body>
+<div id="sketchpad"></div>
+</body>
+```
+
+javascript:
+```js
+var Sketchpad = require('responsive-sketchpad');
+
+var el = document.getElementById('sketchpad');
+var pad = new Sketchpad(el);
+pad.setLineColor('#4CAF50');
+```
+
+## Running tests
+
+`npm install`
+
+`npm test`
