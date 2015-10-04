@@ -1,4 +1,4 @@
-# Responsive-Sketchpad [![Build Status](https://travis-ci.org/trsanders/responsive-sketchpad.svg?branch=master)](https://travis-ci.org/trsanders/responsive-sketchpad)
+# Responsive-Sketchpad [![Build Status](https://travis-ci.org/trsanders/responsive-sketchpad.svg?branch=master)](https://travis-ci.org/trsanders/responsive-sketchpad) [![npm version](https://badge.fury.io/js/responsive-sketchpad.svg)](http://badge.fury.io/js/responsive-sketchpad)
 
 A completely responsive, HTML5 canvas sketchpad for use on desktop and mobile browsers
 
