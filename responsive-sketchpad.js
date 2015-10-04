@@ -222,4 +222,4 @@ Sketchpad.prototype.resize = function (width) {
 }
 
 
-window.Sketchpad = Sketchpad
+module.exports = Sketchpad;
