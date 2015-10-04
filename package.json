@@ -1,0 +1,25 @@
+{
+  "name": "responsive-sketchpad",
+  "version": "1.0.0",
+  "description": "A completely responsive sketchpad based on HTML5 canvas",
+  "main": "responsive-sketchpad.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trsanders/responsive-sketchpad.git"
+  },
+  "keywords": [
+    "canvas",
+    "sketchpad",
+    "responsive",
+    "draw"
+  ],
+  "author": "Theisen Sanders",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/trsanders/responsive-sketchpad/issues"
+  },
+  "homepage": "https://github.com/trsanders/responsive-sketchpad#readme"
+}
