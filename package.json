@@ -4,7 +4,7 @@
   "description": "A completely responsive sketchpad based on HTML5 canvas",
   "main": "responsive-sketchpad.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine"
   },
   "repository": {
     "type": "git",
@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/trsanders/responsive-sketchpad/issues"
   },
-  "homepage": "https://github.com/trsanders/responsive-sketchpad#readme"
+  "homepage": "https://github.com/trsanders/responsive-sketchpad#readme",
+  "devDependencies": {
+    "jasmine": "^2.3.2"
+  }
 }
