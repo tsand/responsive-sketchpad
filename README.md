@@ -2,6 +2,8 @@
 
 A completely responsive, HTML5 canvas sketchpad for use on desktop and mobile browsers
 
+> No longer dependent on jQuery!
+
 
 ## Getting Started
 
