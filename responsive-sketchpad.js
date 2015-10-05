@@ -204,6 +204,8 @@
                 return;
             }
 
+            e.preventDefault();
+
             var cursor = getCursorRelativeToCanvas(e);
             that.strokes[strokes.length - 1].points.push({
                 x: cursor.x,
@@ -217,6 +219,8 @@
             if (!sketching) {
                 return;
             }
+
+            e.preventDefault();
 
             sketching = false;
 
