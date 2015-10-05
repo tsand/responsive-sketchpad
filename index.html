@@ -89,7 +89,7 @@
 </head>
 
 <body>
-<div class="header">
+<!-- <div class="header">
     <h1>Responsive Sketchpad</h1>
     <h4>A completely responsive, HTML5 canvas sketchpad for use on desktop and mobile browsers</h4>
 
@@ -101,7 +101,7 @@
         href="https://github.com/trsanders/responsive-sketchpad/zipball/master">
         <i class="material-icons">&#xE2C0;</i> Download Source
     </a>
-</div>
+</div> -->
 
 <div class="content">
     <div class="mdl-grid">
@@ -154,17 +154,17 @@ pad.redo();</code></pre>
                 </div>
 
                 <div class="tool">
+                    <button class="mdl-button mdl-js-button mdl-button--raised" id="drawLineBtn">
+                        <i class="material-icons">&#xE15B;</i> Draw Line
+                    </button>
+                    <pre class="mdl-shadow--2dp"><code class="language-javascript">pad.drawLine({x: 10, y: 15}, {x: 33, y: 45}, {color: 'red'});</code></pre>
+                </div>
+
+                <div class="tool">
                     <button class="mdl-button mdl-js-button mdl-button--raised" onclick="doClear()">
                         <i class="material-icons">&#xE14C;</i> Clear
                     </button>
                     <pre class="mdl-shadow--2dp"><code class="language-javascript">pad.clear();</code></pre>
-                </div>
-
-                <div class="tool">
-                    <button class="mdl-button mdl-js-button mdl-button--raised" id="drawLineBtn">
-                        <i class="material-icons">&#xE14C;</i> Draw Line
-                    </button>
-                    <pre class="mdl-shadow--2dp"><code class="language-javascript">pad.drawLine({x: 10, y: 15}, {x: 33, y: 45}, {color: 'red'});</code></pre>
                 </div>
             </div>
         </div>
