@@ -83,14 +83,28 @@
         }
 
         /**
+         * Returns true if is a touch event, false otherwise
+         */
+        function isTouchEvent (e) {
+            return e.type.indexOf('touch') !== -1;
+        }
+
+        /**
          * Get location of the cursor in the canvas
          */
         function getCursorRelativeToCanvas (e) {
-            var rect = that.canvas.getBoundingClientRect();
-            return getPointRelativeToCanvas({
-                x: (e.clientX - rect.left),
-                y: (e.clientY - rect.top)
-            });
+            var cur = {};
+
+            if (isTouchEvent(e)) {
+                cur.x = e.touches[0].pageX - canvas.offsetLeft;
+                cur.y = e.touches[0].pageY - canvas.offsetTop;
+            } else {
+                var rect = that.canvas.getBoundingClientRect();
+                cur.x = e.clientX - rect.left;
+                cur.y = e.clientY - rect.top;
+            }
+
+            return getPointRelativeToCanvas(cur);
         }
 
         /**
@@ -106,9 +120,8 @@
          * Erase everything in the canvase
          */
         function clearCanvas () {
-            var width = that.canvas.width;
-            var height = that.canvas.height;
-            context.clearRect(0, 0, width, height);
+            var canvasSize = getCanvasSize();
+            context.clearRect(0, 0, canvasSize.width, canvasSize.height);
         }
 
         /**
@@ -116,9 +129,10 @@
          * this takes a point and converts it to actual x, y distances in the canvas
          */
         function normalizePoint (point) {
+            var canvasSize = getCanvasSize();
             return {
-                x: point.x * that.canvas.width,
-                y: point.y * that.canvas.height
+                x: point.x * canvasSize.width,
+                y: point.y * canvasSize.height
             };
         }
 
@@ -128,7 +142,8 @@
          * appropriate to the size of the canvas
          */
         function normalizeLineSize (size) {
-            return size * that.canvas.width;
+            var canvasSize = getCanvasSize();
+            return size * canvasSize.width;
         }
 
         /**
@@ -204,20 +219,29 @@
             }
 
             sketching = false;
+
+            if (isTouchEvent(e)) {
+                return;  // touchend events do not have a cursor position
+            }
+
             var cursor = getCursorRelativeToCanvas(e);
             that.strokes[strokes.length - 1].points.push({
                 x: cursor.x,
                 y: cursor.y
             });
-
             that.redraw();
         }
 
         // Event Listeners
         canvas.addEventListener('mousedown', startLine);
+        canvas.addEventListener('touchstart', startLine);
+
         canvas.addEventListener('mousemove', drawLine);
+        canvas.addEventListener('touchmove', drawLine);
+
         canvas.addEventListener('mouseup', endLine);
         canvas.addEventListener('mouseleave', endLine);
+        canvas.addEventListener('touchend', endLine);
 
         // Public variables
         this.canvas = canvas;
@@ -274,10 +298,21 @@
      * other sketchpads or stored on a server
      */
     Sketchpad.prototype.toJSON = function () {
+        var canvasSize = this.getCanvasSize();
         return {
-            aspectRatio: 0,
+            version: 1,
+            aspectRatio: canvasSize.width / canvasSize.height,
             strokes: this.strokes
         };
+    };
+
+
+    /**
+     * Load a json object into the sketchpad
+     * @return {object} - JSON object to load
+     */
+    Sketchpad.prototype.loadJSON = function (data) {
+        this.strokes = data.strokes;
     };
 
 
@@ -320,11 +355,11 @@
 
         this.strokes.push({
             points: [start, end],
-            lineColor: lineOpts.color,
-            lineSize: this.getLineSizeRelativeToCanvas(lineOpts.size),
-            lineCap: lineOpts.cap,
-            lineJoin: lineOpts.join,
-            lineMiterLimit: lineOpts.miterLimit
+            color: lineOpts.color,
+            size: this.getLineSizeRelativeToCanvas(lineOpts.size),
+            cap: lineOpts.cap,
+            join: lineOpts.join,
+            miterLimit: lineOpts.miterLimit
         });
         this.redraw();
     };
