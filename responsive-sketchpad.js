@@ -1,4 +1,3 @@
-
 (function () {
 
     function mergeObjects(obj1, obj2) {
@@ -26,10 +25,17 @@
         }
 
         opts = opts || {};
+        var strokes = [];
+        var undos = [];
+
+        if (opts.data) {
+      		opts.aspectRatio = opts.data.aspectRatio;
+      		strokes = opts.data.strokes;
+      	}
+
         opts.aspectRatio = opts.aspectRatio || 1;
         opts.width = opts.width || el.clientWidth;
         opts.height = opts.height || opts.width * opts.aspectRatio;
-        opts.data = opts.data || [];
         opts.line = mergeObjects({
             color: '#000',
             size: 5,
@@ -37,9 +43,6 @@
             join: 'round',
             miterLimit: 10
         }, opts.line);
-
-        var strokes = opts.data;
-        var undos = [];
 
         // Boolean indicating if currently drawing
         var sketching = false;
@@ -256,8 +259,13 @@
         // Public functions
         this.redraw = redraw;
         this.setCanvasSize = setCanvasSize;
+        this.getCanvasSize = getCanvasSize;
         this.getPointRelativeToCanvas = getPointRelativeToCanvas;
         this.getLineSizeRelativeToCanvas = getLineSizeRelativeToCanvas;
+
+        if (strokes) {
+          redraw();
+        }
     }
 
 
@@ -304,7 +312,6 @@
     Sketchpad.prototype.toJSON = function () {
         var canvasSize = this.getCanvasSize();
         return {
-            version: 1,
             aspectRatio: canvasSize.width / canvasSize.height,
             strokes: this.strokes
         };
