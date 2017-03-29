@@ -1,0 +1,26 @@
+
+#sketchpad {
+    border: 1px solid #eee;
+    cursor: crosshair;
+}
+
+
+section {
+    padding: 2rem 0;
+}
+
+.text-center {
+    text-align: center;
+}
+
+@media (min-width: 550px) {
+    section:first-child {
+        margin-top: 8rem;
+    }
+}
+
+
+/*section:not(:first-child) {
+    border-top: 1px solid #eee;
+}
+*/

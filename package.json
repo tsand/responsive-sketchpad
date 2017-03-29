@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/trsanders/responsive-sketchpad.git"
+    "url": "git+https://github.com/theisensanders-wf/responsive-sketchpad.git"
   },
   "keywords": [
     "canvas",
@@ -19,9 +19,9 @@
   "author": "Theisen Sanders",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/trsanders/responsive-sketchpad/issues"
+    "url": "https://github.com/theisensanders-wf/responsive-sketchpad/issues"
   },
-  "homepage": "https://github.com/trsanders/responsive-sketchpad#readme",
+  "homepage": "https://github.com/theisensanders-wf/responsive-sketchpad#readme",
   "devDependencies": {
     "jasmine": "^2.3.2"
   }
