@@ -96,12 +96,12 @@
          */
         function getCursorRelativeToCanvas (e) {
             var cur = {};
+            var rect = that.canvas.getBoundingClientRect();
 
             if (isTouchEvent(e)) {
-                cur.x = e.touches[0].pageX - canvas.offsetLeft;
-                cur.y = e.touches[0].pageY - canvas.offsetTop;
+                cur.x = e.touches[0].clientX - rect.left;
+                cur.y = e.touches[0].clientY - rect.top;
             } else {
-                var rect = that.canvas.getBoundingClientRect();
                 cur.x = e.clientX - rect.left;
                 cur.y = e.clientY - rect.top;
             }
