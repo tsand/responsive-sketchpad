@@ -33,6 +33,7 @@
       	    strokes = opts.data.strokes;
       	}
 
+        opts.readOnly = opts.readOnly || false;
         opts.aspectRatio = opts.aspectRatio || 1;
         opts.width = opts.width || el.clientWidth;
         opts.height = opts.height || opts.width * opts.aspectRatio;
@@ -186,6 +187,9 @@
         // On mouse down, create a new stroke with a start location
         function startLine (e) {
             e.preventDefault();
+            if (opts.readOnly) {
+                return
+            }
 
             strokes = that.strokes;
             sketching = true;
@@ -208,6 +212,9 @@
             }
 
             e.preventDefault();
+            if (opts.readOnly) {
+                return
+            }
 
             var cursor = getCursorRelativeToCanvas(e);
             that.strokes[strokes.length - 1].points.push({
@@ -224,6 +231,10 @@
             }
 
             e.preventDefault();
+
+            if (opts.readOnly) {
+                return
+            }
 
             sketching = false;
 
@@ -272,6 +283,14 @@
             redraw();
         }
     }
+
+    /**
+     * Make sketchpad readonly
+     */
+    Sketchpad.prototype.setReadOnly = function (value) {
+        this.opts.readOnly = value;
+    };
+
 
     /**
      * Undo the last action
