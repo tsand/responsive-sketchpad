@@ -272,6 +272,7 @@
         this.strokes = strokes;
         this.undos = undos;
         this.opts = opts;
+        this.el = el;
 
         // Public functions
         this.redraw = redraw;
