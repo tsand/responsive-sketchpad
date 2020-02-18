@@ -341,6 +341,15 @@
     Sketchpad.prototype.setLineColor = function (color) {
         this.opts.line.color = color;
     };
+	
+/** 
+* Converts to image File 
+* @param {string} type - example 'png'
+*/
+Sketchpad.prototype.toDataURL = function(type)
+{
+	return this.canvas.toDataURL(type);
+}
 
     /**
      * Draw a line
