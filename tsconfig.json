@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist",
+        "target": "es5",
+        "strict": true,
+
+        // Remove with v1.0
+        "module": "None",
+        "removeComments": true,
+        "alwaysStrict": false,
+        "noImplicitUseStrict": true,
+
+        // Add with v1.0
+        // "declaration": true,
+    },
+    "include": [
+        "./src/**/*"
+    ]
+}

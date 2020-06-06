@@ -1,395 +1,323 @@
-(function () {
-
-    function mergeObjects(obj1, obj2) {
-        var obj3 = {};
-        var attrname;
-        for (attrname in (obj1 || {})) {
-            if (obj1.hasOwnProperty(attrname)) {
-                obj3[attrname] = obj1[attrname];
-            }
-        }
-        for (attrname in (obj2 || {})) {
-            if (obj2.hasOwnProperty(attrname)) {
-                obj3[attrname] = obj2[attrname];
-            }
-        }
-        return obj3;
-    }
-
-
+var Sketchpad = (function () {
     function Sketchpad(el, opts) {
-        var that = this;
-
-        if (!el) {
+        this.sketching = false;
+        this._strokes = [];
+        this.undoneStrokes = [];
+        this.aspectRatio = 1;
+        this.lineWidth = 5;
+        this.lineColor = "#000";
+        this.lineCap = 'round';
+        this.lineJoin = 'round';
+        this.lineMiterLimit = 10;
+        if (el == null) {
             throw new Error('Must pass in a container element');
         }
-
-        opts = opts || {};
-        var strokes = [];
-        var undos = [];
-
-        if (opts.data) {
-      	    opts.aspectRatio = opts.data.aspectRatio;
-      	    strokes = opts.data.strokes;
-      	}
-
-        opts.aspectRatio = opts.aspectRatio || 1;
-        opts.width = opts.width || el.clientWidth;
-        opts.height = opts.height || opts.width * opts.aspectRatio;
-        opts.line = mergeObjects({
-            color: '#000',
-            size: 5,
-            cap: 'round',
-            join: 'round',
-            miterLimit: 10
-        }, opts.line);
-
-        // Boolean indicating if currently drawing
-        var sketching = false;
-
-        // Create a canvas element
-        var canvas = document.createElement('canvas');
-
-        /**
-         * Set the size of canvas
-         */
-        function setCanvasSize (width, height) {
-            canvas.setAttribute('width', width);
-            canvas.setAttribute('height', height);
-            canvas.style.width = width + 'px';
-            canvas.style.height = height + 'px';
+        if (opts != null) {
+            this.setOptions(opts);
         }
-
-        /**
-         * Get the size of the canvas
-         */
-        function getCanvasSize () {
-            return {
-                width: canvas.width,
-                height: canvas.height
-            };
+        this.canvas = document.createElement('canvas');
+        this.ctx = this.canvas.getContext('2d');
+        var width = (opts === null || opts === void 0 ? void 0 : opts.width) || el.clientWidth;
+        var height = (opts === null || opts === void 0 ? void 0 : opts.height) || width * this.aspectRatio;
+        this.setCanvasSize(width, height);
+        el.appendChild(this.canvas);
+        if (this._strokes.length > 0) {
+            this.redraw();
         }
-
-        setCanvasSize(opts.width, opts.height);
-        el.appendChild(canvas);
-        var context = canvas.getContext('2d');
-
-        /**
-         * Returns a points x,y locations relative to the size of the canvase
-         */
-        function getPointRelativeToCanvas (point) {
-            return {
-                x: point.x / canvas.width,
-                y: point.y / canvas.height
-            };
-        }
-
-        /**
-         * Returns true if is a touch event, false otherwise
-         */
-        function isTouchEvent (e) {
-            return e.type.indexOf('touch') !== -1;
-        }
-
-        /**
-         * Get location of the cursor in the canvas
-         */
-        function getCursorRelativeToCanvas (e) {
-            var cur = {};
-
-            if (isTouchEvent(e)) {
-                cur.x = e.touches[0].pageX - canvas.offsetLeft;
-                cur.y = e.touches[0].pageY - canvas.offsetTop;
-            } else {
-                var rect = that.canvas.getBoundingClientRect();
-                cur.x = e.clientX - rect.left;
-                cur.y = e.clientY - rect.top;
-            }
-
-            return getPointRelativeToCanvas(cur);
-        }
-
-        /**
-         * Get the line size relative to the size of the canvas
-         * @return {[type]} [description]
-         */
-        function getLineSizeRelativeToCanvas (size) {
-            return size / canvas.width;
-        }
-
-        /**
-         * Erase everything in the canvase
-         */
-        function clearCanvas () {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (opts.backgroundColor) {
-                context.fillStyle = opts.backgroundColor;
-                context.fillRect(0, 0, canvas.width, canvas.height);
-            }
-        }
-
-        /**
-         * Since points are stored relative to the size of the canvas
-         * this takes a point and converts it to actual x, y distances in the canvas
-         */
-        function normalizePoint (point) {
-            return {
-                x: point.x * canvas.width,
-                y: point.y * canvas.height
-            };
-        }
-
-        /**
-         * Since line sizes are stored relative to the size of the canvas
-         * this takes a line size and converts it to a line size
-         * appropriate to the size of the canvas
-         */
-        function normalizeLineSize (size) {
-            return size * canvas.width;
-        }
-
-        /**
-         * Draw a stroke on the canvas
-         */
-        function drawStroke (stroke) {
-            context.beginPath();
-            for (var j = 0; j < stroke.points.length - 1; j++) {
-                var start = normalizePoint(stroke.points[j]);
-                var end = normalizePoint(stroke.points[j + 1]);
-
-                context.moveTo(start.x, start.y);
-                context.lineTo(end.x, end.y);
-            }
-            context.closePath();
-
-            context.strokeStyle = stroke.color;
-            context.lineWidth = normalizeLineSize(stroke.size);
-            context.lineJoin = stroke.join;
-            context.lineCap = stroke.cap;
-            context.miterLimit = stroke.miterLimit;
-
-            context.stroke();
-        }
-
-        /**
-         * Redraw the canvas
-         */
-        function redraw () {
-            clearCanvas();
-
-            for (var i = 0; i < that.strokes.length; i++) {
-                drawStroke(that.strokes[i]);
-            }
-        }
-
-        // On mouse down, create a new stroke with a start location
-        function startLine (e) {
-            e.preventDefault();
-
-            strokes = that.strokes;
-            sketching = true;
-            that.undos = [];
-
-            var cursor = getCursorRelativeToCanvas(e);
-            strokes.push({
-                points: [cursor],
-                color: opts.line.color,
-                size: getLineSizeRelativeToCanvas(opts.line.size),
-                cap: opts.line.cap,
-                join: opts.line.join,
-                miterLimit: opts.line.miterLimit
-            });
-        }
-
-        function drawLine (e) {
-            if (!sketching) {
-                return;
-            }
-
-            e.preventDefault();
-
-            var cursor = getCursorRelativeToCanvas(e);
-            that.strokes[strokes.length - 1].points.push({
-                x: cursor.x,
-                y: cursor.y
-            });
-
-            that.redraw();
-        }
-
-        function endLine (e) {
-            if (!sketching) {
-                return;
-            }
-
-            e.preventDefault();
-
-            sketching = false;
-
-            if (isTouchEvent(e)) {
-                return;  // touchend events do not have a cursor position
-            }
-
-            var cursor = getCursorRelativeToCanvas(e);
-            that.strokes[strokes.length - 1].points.push({
-                x: cursor.x,
-                y: cursor.y
-            });
-            that.redraw();
-			
-            if (that.onDrawEnd) that.onDrawEnd();
-        }
-
-        // Event Listeners
-        canvas.addEventListener('mousedown', startLine);
-        canvas.addEventListener('touchstart', startLine);
-
-        canvas.addEventListener('mousemove', drawLine);
-        canvas.addEventListener('touchmove', drawLine);
-
-        canvas.addEventListener('mouseup', endLine);
-        canvas.addEventListener('mouseleave', endLine);
-        canvas.addEventListener('touchend', endLine);
-		
-        if (typeof opts.onDrawEnd === 'function') {
-            this.onDrawEnd = opts.onDrawEnd;
-        }
-
-        // Public variables
-        this.canvas = canvas;
-        this.strokes = strokes;
-        this.undos = undos;
-        this.opts = opts;
-
-        // Public functions
-        this.redraw = redraw;
-        this.setCanvasSize = setCanvasSize;
-        this.getPointRelativeToCanvas = getPointRelativeToCanvas;
-        this.getLineSizeRelativeToCanvas = getLineSizeRelativeToCanvas;
-
-        if (strokes) {
-            redraw();
-        }
+        this.listen();
     }
-
-    /**
-     * Undo the last action
-     */
-    Sketchpad.prototype.undo = function () {
-        if (this.strokes.length === 0){
-            return;
-        }
-
-        this.undos.push(this.strokes.pop());
-        this.redraw();
-    };
-
-    /**
-     * Redo the last undo action
-     */
-    Sketchpad.prototype.redo = function () {
-        if (this.undos.length === 0) {
-            return;
-        }
-
-        this.strokes.push(this.undos.pop());
-        this.redraw();
-    };
-
-    /**
-     * Clear the sketchpad
-     */
-    Sketchpad.prototype.clear = function () {
-        this.undos = [];  // TODO: Add clear action to undo
-        this.strokes = [];
-        this.redraw();
-    };
-
-    /**
-     * Convert the sketchpad to a JSON object that can be loaded into
-     * other sketchpads or stored on a server
-     */
+    Object.defineProperty(Sketchpad.prototype, "strokes", {
+        get: function () {
+            return this._strokes.map(function (s) { return s.toObj(); });
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sketchpad.prototype, "undos", {
+        get: function () {
+            return this.undoneStrokes.map(function (s) { return s.toObj(); });
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Sketchpad.prototype, "opts", {
+        get: function () {
+            return {
+                backgroundColor: this.backgroundColor,
+                width: this.canvas.width,
+                height: this.canvas.height,
+                aspectRatio: this.canvas.width / this.canvas.height,
+                line: {
+                    size: this.lineWidth,
+                    color: this.lineColor,
+                    cap: this.lineCap,
+                    join: this.lineJoin,
+                    miterLimit: this.lineMiterLimit,
+                }
+            };
+        },
+        enumerable: false,
+        configurable: true
+    });
     Sketchpad.prototype.toJSON = function () {
         return {
             aspectRatio: this.canvas.width / this.canvas.height,
             strokes: this.strokes
         };
     };
-
-    /**
-     * Load a json object into the sketchpad
-     * @return {object} - JSON object to load
-     */
+    ;
     Sketchpad.prototype.loadJSON = function (data) {
-        this.strokes = data.strokes;
+        var strokeObjs = data.strokes || [];
+        this._strokes = strokeObjs.map(function (s) { return Stroke.fromObj(s); });
         this.redraw();
     };
-
-    /**
-     * Set the line size
-     * @param {number} size - Size of the brush
-     */
+    ;
+    Sketchpad.prototype.toDataURL = function (type) {
+        return this.canvas.toDataURL(type);
+    };
+    Sketchpad.prototype.setCanvasSize = function (width, height) {
+        this.canvas.setAttribute('width', width.toString());
+        this.canvas.setAttribute('height', height.toString());
+        this.canvas.style.width = width + 'px';
+        this.canvas.style.height = height + 'px';
+    };
+    Sketchpad.prototype.getCanvasSize = function () {
+        return {
+            width: this.canvas.width,
+            height: this.canvas.height
+        };
+    };
+    Sketchpad.prototype.setLineWidth = function (width) {
+        this.lineWidth = width;
+    };
+    ;
     Sketchpad.prototype.setLineSize = function (size) {
-        this.opts.line.size = size;
+        this.lineWidth = size;
     };
-
-    /**
-     * Set the line color
-     * @param {string} color - Hexadecimal color code
-     */
+    ;
     Sketchpad.prototype.setLineColor = function (color) {
-        this.opts.line.color = color;
+        this.lineColor = color;
     };
-	
-/** 
-* Converts to image File 
-* @param {string} type - example 'png'
-*/
-Sketchpad.prototype.toDataURL = function(type)
-{
-	return this.canvas.toDataURL(type);
-}
-
-    /**
-     * Draw a line
-     * @param  {object} start    - Starting x and y locations
-     * @param  {object} end      - Ending x and y locations
-     * @param  {object} lineOpts - Options for line (color, size, etc.)
-     */
-    Sketchpad.prototype.drawLine = function (start, end, lineOpts) {
-        lineOpts = mergeObjects(this.opts.line, lineOpts);
-        start = this.getPointRelativeToCanvas(start);
-        end = this.getPointRelativeToCanvas(end);
-
-        this.strokes.push({
-            points: [start, end],
-            color: lineOpts.color,
-            size: this.getLineSizeRelativeToCanvas(lineOpts.size),
-            cap: lineOpts.cap,
-            join: lineOpts.join,
-            miterLimit: lineOpts.miterLimit
-        });
+    ;
+    Sketchpad.prototype.undo = function () {
+        if (this._strokes.length === 0) {
+            return;
+        }
+        this.undoneStrokes.push(this._strokes.pop());
         this.redraw();
     };
-
-    /**
-     * Resize the canvas maintaining original aspect ratio
-     * @param  {number} width - New width of the canvas
-     */
+    Sketchpad.prototype.redo = function () {
+        if (this.undoneStrokes.length === 0) {
+            return;
+        }
+        this._strokes.push(this.undoneStrokes.pop());
+        this.redraw();
+    };
+    Sketchpad.prototype.clear = function () {
+        this.undoneStrokes = [];
+        this._strokes = [];
+        this.redraw();
+    };
+    Sketchpad.prototype.drawLine = function (start, end, lineOpts) {
+        this.setOptions({ line: lineOpts });
+        start = this.getPointRelativeToCanvas(new Point(start.x, start.y));
+        end = this.getPointRelativeToCanvas(new Point(end.x, end.y));
+        this.pushStroke([start, end]);
+        this.redraw();
+    };
     Sketchpad.prototype.resize = function (width) {
-        var height = width * this.opts.aspectRatio;
-        this.opts.lineSize = this.opts.lineSize * (width / this.opts.width);
-        this.opts.width = width;
-        this.opts.height = height;
-
+        var height = width * this.aspectRatio;
+        this.lineWidth = this.lineWidth * (width / this.canvas.width);
         this.setCanvasSize(width, height);
         this.redraw();
     };
-
-    if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-        module.exports = Sketchpad;
-    } else {
-        window.Sketchpad = Sketchpad;
+    ;
+    Sketchpad.prototype.getPointRelativeToCanvas = function (point) {
+        return {
+            x: point.x / this.canvas.width,
+            y: point.y / this.canvas.height,
+        };
+    };
+    Sketchpad.prototype.getLineSizeRelativeToCanvas = function (width) {
+        return width / this.canvas.width;
+    };
+    Sketchpad.prototype.setOptions = function (opts) {
+        var _a, _b, _c, _d, _e, _f;
+        if (opts.backgroundColor) {
+            this.backgroundColor = opts.backgroundColor;
+        }
+        if ((_a = opts.line) === null || _a === void 0 ? void 0 : _a.size) {
+            this.lineWidth = opts.line.size;
+        }
+        if ((_b = opts.line) === null || _b === void 0 ? void 0 : _b.cap) {
+            this.lineCap = opts.line.cap;
+        }
+        if ((_c = opts.line) === null || _c === void 0 ? void 0 : _c.join) {
+            this.lineJoin = opts.line.join;
+        }
+        if ((_d = opts.line) === null || _d === void 0 ? void 0 : _d.miterLimit) {
+            this.lineMiterLimit = opts.line.miterLimit;
+        }
+        if (opts.aspectRatio) {
+            this.aspectRatio = opts.aspectRatio;
+        }
+        if (opts.data) {
+            this._strokes = (_f = (_e = opts.data.strokes) === null || _e === void 0 ? void 0 : _e.map(function (s) { return Stroke.fromObj(s); })) !== null && _f !== void 0 ? _f : [];
+        }
+        if (opts.onDrawEnd) {
+            this.onDrawEnd = opts.onDrawEnd;
+        }
+    };
+    Sketchpad.prototype.getCursorRelativeToCanvas = function (e) {
+        var point;
+        if (isTouchEvent(e)) {
+            var touchEvent = e;
+            point = new Point(touchEvent.touches[0].pageX - this.canvas.offsetLeft, touchEvent.touches[0].pageY - this.canvas.offsetTop);
+        }
+        else {
+            var mouseEvent = e;
+            var rect = this.canvas.getBoundingClientRect();
+            point = new Point(mouseEvent.clientX - rect.left, mouseEvent.clientY - rect.top);
+        }
+        return new Point(point.x / this.canvas.width, point.y / this.canvas.height);
+    };
+    Sketchpad.prototype.normalizePoint = function (p) {
+        return new Point(p.x * this.canvas.width, p.y * this.canvas.height);
+    };
+    Sketchpad.prototype.getLineWidthRelativeToCanvas = function (size) {
+        return size / this.canvas.width;
+    };
+    Sketchpad.prototype.normalizeLineWidth = function (width) {
+        return width * this.canvas.width;
+    };
+    Sketchpad.prototype.clearCanvas = function () {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        if (this.backgroundColor) {
+            this.ctx.fillStyle = this.backgroundColor;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+    };
+    Sketchpad.prototype.drawStroke = function (stroke) {
+        if (stroke.points == null)
+            return;
+        this.ctx.beginPath();
+        for (var i = 0; i < stroke.points.length - 1; i++) {
+            var start = this.normalizePoint(stroke.points[i]);
+            var end = this.normalizePoint(stroke.points[i + 1]);
+            this.ctx.moveTo(start.x, start.y);
+            this.ctx.lineTo(end.x, end.y);
+        }
+        this.ctx.closePath();
+        if (stroke.color) {
+            this.ctx.strokeStyle = stroke.color;
+        }
+        if (stroke.width) {
+            this.ctx.lineWidth = this.normalizeLineWidth(stroke.width);
+        }
+        if (stroke.join) {
+            this.ctx.lineJoin = stroke.join;
+        }
+        if (stroke.cap) {
+            this.ctx.lineCap = stroke.cap;
+        }
+        if (stroke.miterLimit) {
+            this.ctx.miterLimit = stroke.miterLimit;
+        }
+        this.ctx.stroke();
+    };
+    Sketchpad.prototype.pushStroke = function (points) {
+        this._strokes.push(Stroke.fromObj({
+            points: points,
+            size: this.getLineWidthRelativeToCanvas(this.lineWidth),
+            color: this.lineColor,
+            cap: this.lineCap,
+            join: this.lineJoin,
+            miterLimit: this.lineMiterLimit,
+        }));
+    };
+    Sketchpad.prototype.redraw = function () {
+        var _this = this;
+        this.clearCanvas();
+        this._strokes.forEach(function (s) { return _this.drawStroke(s); });
+    };
+    Sketchpad.prototype.listen = function () {
+        var _this = this;
+        ['mousedown', 'touchstart'].forEach(function (name) { return _this.canvas.addEventListener(name, function (e) { return _this.startStrokeHandler(e); }); });
+        ['mousemove', 'touchmove'].forEach(function (name) { return _this.canvas.addEventListener(name, function (e) { return _this.drawStrokeHandler(e); }); });
+        ['mouseup', 'mouseleave', 'touchend'].forEach(function (name) { return _this.canvas.addEventListener(name, function (e) { return _this.endStrokeHandler(e); }); });
+    };
+    Sketchpad.prototype.startStrokeHandler = function (e) {
+        e.preventDefault();
+        this.sketching = true;
+        var point = this.getCursorRelativeToCanvas(e);
+        this.pushStroke([point]);
+        this.redraw();
+    };
+    Sketchpad.prototype.drawStrokeHandler = function (e) {
+        var _a;
+        e.preventDefault();
+        if (!this.sketching)
+            return;
+        var point = this.getCursorRelativeToCanvas(e);
+        (_a = this._strokes[this._strokes.length - 1].points) === null || _a === void 0 ? void 0 : _a.push(point);
+        this.redraw();
+    };
+    Sketchpad.prototype.endStrokeHandler = function (e) {
+        var _a;
+        e.preventDefault();
+        if (!this.sketching)
+            return;
+        this.sketching = false;
+        if (isTouchEvent(e)) {
+            return;
+        }
+        var point = this.getCursorRelativeToCanvas(e);
+        (_a = this._strokes[this._strokes.length - 1].points) === null || _a === void 0 ? void 0 : _a.push(point);
+        this.redraw();
+        if (this.onDrawEnd) {
+            this.onDrawEnd();
+        }
+    };
+    return Sketchpad;
+}());
+function isTouchEvent(e) {
+    return e.type.indexOf('touch') !== -1;
+}
+var Point = (function () {
+    function Point(x, y) {
+        this.x = x;
+        this.y = y;
     }
-})();
+    return Point;
+}());
+var Stroke = (function () {
+    function Stroke() {
+    }
+    Stroke.fromObj = function (s) {
+        var stroke = new Stroke();
+        stroke.points = s.points;
+        stroke.width = s.size;
+        stroke.color = s.color;
+        stroke.cap = s.cap;
+        stroke.join = s.join;
+        stroke.miterLimit = s.miterLimit;
+        return stroke;
+    };
+    Stroke.prototype.toObj = function () {
+        return {
+            points: this.points,
+            size: this.width,
+            color: this.color,
+            cap: this.cap,
+            join: this.join,
+            miterLimit: this.miterLimit,
+        };
+    };
+    return Stroke;
+}());
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    module.exports = Sketchpad;
+}
+else {
+    window.Sketchpad = Sketchpad;
+}
