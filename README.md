@@ -1,38 +1,35 @@
-# Responsive-Sketchpad [![npm version](https://badge.fury.io/js/responsive-sketchpad.svg)](http://badge.fury.io/js/responsive-sketchpad)
+# Responsive-Sketchpad
 
-A completely responsive, HTML5 canvas sketchpad for use on desktop and mobile browsers
+[![npm version](https://img.shields.io/npm/v/responsive-sketchpad)](https://www.npmjs.com/package/responsive-sketchpad)
+[![Node.js Build](https://github.com/tsand/responsive-sketchpad/workflows/Node.js%20Build/badge.svg)](https://github.com/tsand/responsive-sketchpad/actions)
 
-> No longer dependent on jQuery!
+A completely responsive, HTML5 canvas sketchpad for use on desktop and mobile browsers with no dependencies.
 
-
-## Getting Started
+[Demo](https://tsand.github.io/responsive-sketchpad/)
 
 ### Installation
 
 `npm install responsive-sketchpad`
 
-### Example
+### Example Usage
 
-Create a sketchpad
-
-html:
 ```html
-<body>
-<div id="sketchpad"></div>
-</body>
+<!-- index.html -->
+<html>
+  <head>
+    <script src="script.js" async></script>
+  </head>
+  <body>
+    <div id="sketchpad"></div>
+  </body>
+</html>
 ```
 
-javascript:
 ```js
+// script.js
 var Sketchpad = require('responsive-sketchpad');
 
 var el = document.getElementById('sketchpad');
 var pad = new Sketchpad(el);
 pad.setLineColor('#4CAF50');
 ```
-
-## Running tests
-
-`npm install`
-
-`npm test`

@@ -3,6 +3,9 @@
   "version": "0.2.1",
   "description": "A completely responsive sketchpad based on HTML5 canvas",
   "main": "responsive-sketchpad.js",
+  "files": [
+    "responsive-sketchpad.js"
+  ],
   "scripts": {
     "test": "jasmine"
   },
