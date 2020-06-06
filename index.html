@@ -68,7 +68,19 @@
             <div class="one-half column">
               <button class="u-full-width" id="redo">Redo</button>
             </div>
-            <button class="u-full-width" id="clear">Clear</button>
+            <button class="u-full-width no-margin" id="clear">Clear</button>
+            <div class="docs-section text-center">
+              <p>Read and write sketchpad data</p>
+              <div class="row">
+                <div class="one-half column">
+                  <a class="button u-full-width no-pad" id="uploadJson" download="image.png">Upload JSON</a>
+                  <input type="file" id="uploadJsonInput" style="position: fixed; top: -100em" accept="application/json" />
+                </div>
+                <div class="one-half column">
+                  <a class="button u-full-width no-pad" id="downloadJson" download="data.json">Download JSON</a>
+                </div>
+                <a class="button u-full-width" id="downloadPng" download="image.png">Download PNG</a>
+              </div>
           </div>
         </div>
       </div>
@@ -150,6 +162,41 @@ pad.resize(newWidth);
         pad.clear();
     }
     document.getElementById('clear').onclick = clear;
+
+    function uploadJson() {
+      document.getElementById('uploadJsonInput').click();
+    }
+    document.getElementById('uploadJson').addEventListener('click', uploadJson, false);
+
+    function changeJson(e, a) {
+      const files = e.target.files;
+      if (files.length == 0) return;
+
+      const reader = new FileReader();
+      reader.addEventListener('load', (event) => {
+        try {
+          var data = JSON.parse(event.target.result);
+        } catch (e) {
+          alert("Unable to read JSON file");
+          throw e;
+        }
+        pad.loadJSON(data);
+      });
+      reader.readAsText(files[0]);
+    }
+    document.getElementById('uploadJsonInput').addEventListener('change', changeJson, false);
+
+    function downloadJson() {
+      var data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(pad.toJSON()));
+      this.href = data;
+    }
+    document.getElementById('downloadJson').addEventListener('click', downloadJson, false);
+
+    function downloadPng() {
+      var data = pad.canvas.toDataURL("image/png");
+      this.href = data;
+    }
+    document.getElementById('downloadPng').addEventListener('click', downloadPng, false);
 
     // resize
     window.onresize = function (e) {
