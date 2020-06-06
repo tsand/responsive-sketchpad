@@ -13,7 +13,7 @@ section {
     text-align: center;
 }
 
-.no-pad {
+.button, button, input[type="submit"], input[type="reset"], input[type="button"] {
     padding: 0;
 }
 
