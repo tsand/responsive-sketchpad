@@ -17,10 +17,6 @@ jobs:
 
       - run: npm install
       - run: npm run build
-
-      - name: check that generated code is up-to-date
-        run: git diff-index --compact-summary --exit-code HEAD
-
       - run: npm test
 
   release:
