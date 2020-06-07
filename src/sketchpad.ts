@@ -1,4 +1,4 @@
-class Sketchpad {
+export default class Sketchpad {
     readonly canvas: HTMLCanvasElement
 
     private readonly ctx: CanvasRenderingContext2D
@@ -426,11 +426,4 @@ class Stroke  {
             miterLimit: this.miterLimit,
         }
     }
-}
-
-// v2.0 - Remove module loader hack
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = Sketchpad;
-} else {
-    (<any>window).Sketchpad = Sketchpad;
 }

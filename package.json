@@ -2,12 +2,12 @@
   "name": "responsive-sketchpad",
   "version": "1.0.1",
   "description": "A completely responsive sketchpad based on HTML5 canvas",
-  "main": "responsive-sketchpad.js",
+  "main": "dist/sketchpad.js",
   "files": [
     "dist/**/*"
   ],
   "scripts": {
-    "build": "tsc --outFile responsive-sketchpad.js",
+    "build": "rm -rf dist && webpack",
     "test": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine.json"
   },
   "repository": {
@@ -28,9 +28,12 @@
   "homepage": "https://tsand.github.io/responsive-sketchpad/",
   "devDependencies": {
     "@types/jasmine": "^3.5.10",
-    "@types/node": "^14.0.11",
+    "@types/webpack": "^4.41.17",
     "jasmine": "^3.5.0",
+    "ts-loader": "^7.0.5",
     "ts-node": "^8.10.2",
-    "typescript": "^3.9.5"
+    "typescript": "^3.9.5",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
   }
 }

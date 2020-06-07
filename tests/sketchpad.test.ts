@@ -1,7 +1,8 @@
-var Pad = require('../src/sketchpad')
+import Sketchpad from '../src/sketchpad'
 
 describe('Sketchpad', function() {
     it('should throw an error if not called with an element', function () {
-        expect(() => new Pad(null)).toThrow(new Error('Must pass in a container element'));
+        // @ts-ignore - allow null for test
+        expect(() => new Sketchpad(null)).toThrow(new Error('Must pass in a container element'));
     });
 });
