@@ -1,4 +1,4 @@
-name: Node.js Build
+name: Build
 on:
   push:
   schedule:
@@ -6,6 +6,7 @@ on:
 
 jobs:
   build:
+    name: 'Lint, Build, & Test'
     runs-on: ubuntu-latest
 
     steps:
@@ -16,10 +17,12 @@ jobs:
           node-version: '14.x'
 
       - run: npm install
+      - run: npm run lint
       - run: npm run build
       - run: npm test
 
   release:
+    name: 'Release'
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     needs: build
