@@ -1,7 +1,7 @@
 # Responsive-Sketchpad
 
 [![npm version](https://img.shields.io/npm/v/responsive-sketchpad)](https://www.npmjs.com/package/responsive-sketchpad)
-[![Node.js Build](https://github.com/tsand/responsive-sketchpad/workflows/Node.js%20Build/badge.svg)](https://github.com/tsand/responsive-sketchpad/actions)
+[![Build](https://github.com/tsand/responsive-sketchpad/workflows/Build/badge.svg)](https://github.com/tsand/responsive-sketchpad/actions)
 
 A completely responsive, HTML5 canvas sketchpad for use on desktop and mobile browsers with no dependencies.
 
