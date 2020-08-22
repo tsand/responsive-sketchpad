@@ -8,6 +8,7 @@ export default class Sketchpad {
 
   // Options
   private backgroundColor?: string
+  private readOnly = false;
   private aspectRatio = 1 // v2.0 - Remove; rely on canvas as source-of-truth
   private lineWidth = 5
   private lineColor = '#000'
@@ -57,6 +58,7 @@ export default class Sketchpad {
   get opts (): SketchpadOptionsI {
     return {
       backgroundColor: this.backgroundColor,
+      readOnly: this.readOnly,
       width: this.canvas.width,
       height: this.canvas.height,
       aspectRatio: this.canvas.width / this.canvas.height,
@@ -120,6 +122,11 @@ export default class Sketchpad {
   // Set the line color
   setLineColor (color: string): void {
     this.lineColor = color
+  }
+
+  // Set whether or not new strokes can be drawn on the canvas
+  setReadOnly (readOnly: boolean): void {
+    this.readOnly = readOnly;
   }
 
   // Undo the last stroke
@@ -324,6 +331,10 @@ export default class Sketchpad {
 
   private startStrokeHandler (e: Event): void {
     e.preventDefault()
+    if (this.readOnly) {
+      return;
+    }
+
     this.sketching = true
 
     const point = this.getCursorRelativeToCanvas(e)
@@ -392,6 +403,7 @@ interface LineOptionsI {
 
 interface SketchpadOptionsI {
   backgroundColor?: string
+  readOnly?: boolean
   width?: number
   height?: number
   aspectRatio?: number
