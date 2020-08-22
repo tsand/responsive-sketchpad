@@ -215,16 +215,13 @@ export default class Sketchpad {
   // relative to the canvas
   private getCursorRelativeToCanvas(e: Event): Point {
     let point: Point;
+    const rect = this.canvas.getBoundingClientRect();
 
     if (isTouchEvent(e)) {
       const touchEvent = e as TouchEvent;
-      point = new Point(
-        touchEvent.touches[0].pageX - this.canvas.offsetLeft,
-        touchEvent.touches[0].pageY - this.canvas.offsetTop,
-      );
+      point = new Point(touchEvent.touches[0].clientX - rect.left, touchEvent.touches[0].clientY - rect.top);
     } else {
       const mouseEvent = e as MouseEvent;
-      const rect = this.canvas.getBoundingClientRect();
       point = new Point(mouseEvent.clientX - rect.left, mouseEvent.clientY - rect.top);
     }
 
