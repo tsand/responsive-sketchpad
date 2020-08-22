@@ -22,7 +22,7 @@ A completely responsive, HTML5 canvas sketchpad for use on desktop and mobile br
   <body>
     <div id="sketchpad"></div>
   </body>
-  <!-- Can also include global bindings if not just JS modules -->
+  <!-- Can also include global bindings if not using JS modules -->
   <!-- <script src="sketchpad.js"></script> -->
 </html>
 ```
@@ -57,4 +57,7 @@ pad.clear();
 
 // Resize canvas
 pad.resize(100);
+
+// Make read only
+pad.setReadOnly(true);
 ```
