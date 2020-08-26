@@ -5,6 +5,7 @@ export default class Sketchpad {
     private _strokes;
     private undoneStrokes;
     private backgroundColor?;
+    private readOnly;
     private aspectRatio;
     private lineWidth;
     private lineColor;
@@ -24,6 +25,7 @@ export default class Sketchpad {
     setLineWidth(width: number): void;
     setLineSize(size: number): void;
     setLineColor(color: string): void;
+    setReadOnly(readOnly: boolean): void;
     undo(): void;
     redo(): void;
     clear(): void;
@@ -67,6 +69,7 @@ interface LineOptionsI {
 }
 interface SketchpadOptionsI {
     backgroundColor?: string;
+    readOnly?: boolean;
     width?: number;
     height?: number;
     aspectRatio?: number;

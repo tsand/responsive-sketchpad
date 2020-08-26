@@ -18,7 +18,11 @@ jobs:
 
       - run: npm install
       - run: npm run lint
+
       - run: npm run build
+      - name: Verify build files have been committed
+        run: git diff --compact-summary --exit-code HEAD
+
       - run: npm test
 
   release:
