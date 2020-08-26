@@ -28,6 +28,7 @@ export default class Sketchpad {
     }
 
     this.canvas = document.createElement('canvas')
+    this.canvas.style.touchAction = 'none'
     this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D
 
     const width = opts?.width || el.clientWidth
@@ -210,22 +211,12 @@ export default class Sketchpad {
   // For a given event, get the point at which the event occurred
   // relative to the canvas
   private getCursorRelativeToCanvas (e: Event): Point {
-    let point: Point
-
-    if (isTouchEvent(e)) {
-      const touchEvent = e as TouchEvent
-      point = new Point(
-        touchEvent.touches[0].pageX - this.canvas.offsetLeft,
-        touchEvent.touches[0].pageY - this.canvas.offsetTop
-      )
-    } else {
-      const mouseEvent = e as MouseEvent
-      const rect = this.canvas.getBoundingClientRect()
-      point = new Point(
-        mouseEvent.clientX - rect.left,
-        mouseEvent.clientY - rect.top
-      )
-    }
+    const pointerEvent = e as PointerEvent
+    const rect = this.canvas.getBoundingClientRect()
+    const point: Point = new Point(
+      pointerEvent.clientX - rect.left,
+      pointerEvent.clientY - rect.top
+    )
 
     return new Point(
       point.x / this.canvas.width,
@@ -317,9 +308,9 @@ export default class Sketchpad {
   }
 
   private listen (): void {
-    ['mousedown', 'touchstart'].forEach((name) => this.canvas.addEventListener(name, (e) => this.startStrokeHandler(e)));
-    ['mousemove', 'touchmove'].forEach((name) => this.canvas.addEventListener(name, (e) => this.drawStrokeHandler(e)));
-    ['mouseup', 'mouseleave', 'touchend'].forEach((name) => this.canvas.addEventListener(name, (e) => this.endStrokeHandler(e)))
+    this.canvas.addEventListener('pointerdown', (e) => this.startStrokeHandler(e));
+    this.canvas.addEventListener('pointermove', (e) => this.drawStrokeHandler(e));
+    ['pointerleave', 'pointerup'].forEach((name) => this.canvas.addEventListener(name, (e) => this.endStrokeHandler(e)));
   }
 
   private startStrokeHandler (e: Event): void {
@@ -345,10 +336,6 @@ export default class Sketchpad {
     if (!this.sketching) return
     this.sketching = false
 
-    if (isTouchEvent(e)) {
-      return // touchend events do not have a position
-    }
-
     const point = this.getCursorRelativeToCanvas(e)
     this.pushPoint(point)
     this.redraw()
@@ -357,10 +344,6 @@ export default class Sketchpad {
       this.onDrawEnd()
     }
   }
-}
-
-function isTouchEvent (e: Event): boolean {
-  return e.type.indexOf('touch') !== -1 // v2.0 - Switch to startsWith
 }
 
 interface PointI {
