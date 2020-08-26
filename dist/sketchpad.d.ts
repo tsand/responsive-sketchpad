@@ -39,6 +39,7 @@ export default class Sketchpad {
     private clearCanvas;
     private drawStroke;
     private pushStroke;
+    private pushPoint;
     private redraw;
     private listen;
     private startStrokeHandler;
@@ -71,7 +72,7 @@ interface SketchpadOptionsI {
     aspectRatio?: number;
     line?: LineOptionsI;
     data?: DataI;
-    onDrawEnd?: Function;
+    onDrawEnd?: () => void;
 }
 interface StrokeI extends LineOptionsI {
     points?: Array<PointI>;
