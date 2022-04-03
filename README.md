@@ -11,6 +11,8 @@ A completely responsive, HTML5 canvas sketchpad for use on desktop and mobile br
 
 `npm install responsive-sketchpad`
 
+> Follow [node-canvas](https://www.npmjs.com/package/canvas) setup instructions
+
 ### Example Usage
 
 ```html
