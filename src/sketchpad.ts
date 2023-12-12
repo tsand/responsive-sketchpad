@@ -371,7 +371,10 @@ interface PointI {
 }
 
 class Point implements PointI {
-  constructor(public x: number, public y: number) {}
+  constructor(
+    public x: number,
+    public y: number,
+  ) {}
 }
 
 interface RectI {
