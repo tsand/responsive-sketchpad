@@ -1,7 +1,6 @@
 import Sketchpad from '../src/sketchpad';
 
-import jsdom = require('jsdom-global');
-jsdom();
+import 'jsdom-global/register';
 
 describe('Sketchpad', function () {
   it('should add a stroke when a line is drawn', function () {

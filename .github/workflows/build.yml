@@ -12,7 +12,7 @@ jobs:
 
       - uses: actions/setup-node@v1
         with:
-          node-version: '17.x'
+          node-version: '21.x'
 
       - run: npm install
       - run: npm run lint
@@ -34,7 +34,7 @@ jobs:
 
       - uses: actions/setup-node@v1
         with:
-          node-version: '17.x'
+          node-version: '21.x'
           registry-url: 'https://registry.npmjs.org/'
 
       - run: npm publish
